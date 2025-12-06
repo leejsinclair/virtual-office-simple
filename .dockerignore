@@ -1,0 +1,14 @@
+node_modules
+virtual-office-frontend/node_modules
+virtual-office-frontend/.next
+virtual-office-frontend/out
+.git
+.gitignore
+README.md
+.env
+.env.local
+*.log
+.DS_Store
+coverage
+.nyc_output
+

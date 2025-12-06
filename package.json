@@ -1,0 +1,41 @@
+{
+  "name": "virtual-office",
+  "version": "1.0.0",
+  "description": "A real-time virtual office application with proximity-based chat and video conferencing",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "dev:backend": "node index.js",
+    "dev:frontend": "npm run dev --prefix ./virtual-office-frontend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "cd virtual-office-frontend && npm run build",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "virtual-office",
+    "webrtc",
+    "socket.io",
+    "next.js",
+    "real-time",
+    "video-conferencing"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}
