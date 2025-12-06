@@ -1,9 +1,9 @@
 /**
  * Root Layout Component
- * 
+ *
  * Next.js App Router root layout that wraps all pages.
  * Sets up fonts, metadata, and global HTML structure.
- * 
+ *
  * @module RootLayout
  */
 
@@ -40,9 +40,9 @@ export const metadata: Metadata = {
 
 /**
  * Root Layout Component
- * 
+ *
  * Wraps all pages in the application with fonts and HTML structure
- * 
+ *
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - Child components (pages)
  * @returns {JSX.Element} Root HTML structure
@@ -54,9 +54,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
-      </body>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>{children}</body>
     </html>
   );
 }

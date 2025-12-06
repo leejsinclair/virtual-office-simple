@@ -54,4 +54,3 @@ gh repo create virtual-office --public --source=. --remote=origin --push
 - Consider adding a LICENSE file
 - Set up GitHub Actions for CI/CD if desired
 - Add collaborators if working with a team
-

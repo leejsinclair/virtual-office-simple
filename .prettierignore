@@ -1,0 +1,10 @@
+node_modules
+virtual-office-frontend/node_modules
+.next
+out
+build
+coverage
+*.log
+.DS_Store
+package-lock.json
+

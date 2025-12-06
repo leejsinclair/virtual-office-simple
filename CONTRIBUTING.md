@@ -33,6 +33,7 @@ See the main [README.md](README.md) for setup instructions.
 ## Commit Messages
 
 Use clear, descriptive commit messages:
+
 - `feat: Add user presence indicators`
 - `fix: Resolve video call connection issue`
 - `docs: Update README with Docker instructions`
@@ -48,4 +49,3 @@ Use clear, descriptive commit messages:
 ## Questions?
 
 Open an issue for questions or discussions about features.
-

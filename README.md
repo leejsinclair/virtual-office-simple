@@ -27,12 +27,14 @@ A real-time virtual office application where users can move around a shared offi
 ### Development
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd virtual-office
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    cd virtual-office-frontend
@@ -41,15 +43,17 @@ A real-time virtual office application where users can move around a shared offi
    ```
 
 3. **Start development servers**
+
    ```bash
    npm run dev
    ```
-   
+
    This will start:
    - Backend server on `http://localhost:4000`
    - Frontend dev server on `http://localhost:3000`
 
    Or start them separately:
+
    ```bash
    npm run dev:backend    # Backend only
    npm run dev:frontend   # Frontend only
@@ -74,11 +78,13 @@ This will start both backend and frontend services.
 ### Using Docker directly
 
 **Build the image:**
+
 ```bash
 docker build -t virtual-office .
 ```
 
 **Run the container:**
+
 ```bash
 docker run -p 3000:3000 -p 4000:4000 virtual-office
 ```
@@ -134,6 +140,39 @@ NODE_ENV=development         # Environment mode
 
 Built with Next.js App Router. The main office interface is in `src/app/page.tsx`.
 
+## Code Quality & Git Hooks
+
+This project uses **Husky** for git hooks to ensure code quality:
+
+### Pre-commit Hook
+
+- Automatically formats code with **Prettier**
+- Runs **ESLint** and fixes issues where possible
+- Only processes staged files (via `lint-staged`)
+- Prevents commit if linting fails
+
+### Pre-push Hook
+
+- Runs all tests before allowing push
+- Prevents push if tests fail
+- Ensures code quality before pushing to remote
+
+### Manual Commands
+
+```bash
+# Format all files
+npm run format
+
+# Check formatting without changing files
+npm run format:check
+
+# Lint all files
+npm run lint
+
+# Fix linting issues
+npm run lint:fix
+```
+
 ## Testing
 
 ```bash
@@ -143,6 +182,7 @@ npm test
 ## Production Build
 
 **Frontend:**
+
 ```bash
 cd virtual-office-frontend
 npm run build
@@ -150,6 +190,7 @@ npm start
 ```
 
 **Backend:**
+
 ```bash
 node index.js
 ```
@@ -173,4 +214,3 @@ ISC
 - Video calls use PeerJS public servers by default. For production, consider self-hosting PeerJS or using a TURN server for better reliability.
 - User positions and chat history are stored in-memory and reset on server restart.
 - For production, consider adding a database for persistence.
-
