@@ -4,7 +4,9 @@
   "description": "A real-time virtual office application with proximity-based chat and video conferencing",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "jest",
+    "test:frontend": "npm run test --prefix ./virtual-office-frontend",
     "test:watch": "jest --watch",
     "dev:backend": "node index.js",
     "dev:frontend": "npm run dev --prefix ./virtual-office-frontend",
