@@ -74,7 +74,7 @@ export default function Page() {
   // ============================================================================
 
   /** PeerJS instance for WebRTC connections */
-  const [peer, setPeer] = useState<any>(null);
+  const [peer, setPeer] = useState<Peer | null>(null);
   /** PeerJS ID assigned when peer connection opens */
   const [peerId, setPeerId] = useState<string>("");
   /** Local user's media stream (camera + microphone) */
@@ -96,7 +96,7 @@ export default function Page() {
   /** Whether legacy video call modal is visible */
   const [videoModal, setVideoModal] = useState(false);
   /** Remote stream for legacy video call */
-  const [remoteStream, setRemoteStream] = useState<any>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   /** Ref to local video element in legacy modal */
   const localVideoRef = useRef<HTMLVideoElement>(null);
   /** Ref to remote video element in legacy modal */
@@ -108,8 +108,6 @@ export default function Page() {
   // Chat State
   // ============================================================================
 
-  /** Legacy: Map of active chat sessions (deprecated, kept for compatibility) */
-  const [activeChats, setActiveChats] = useState<{ [other: string]: boolean }>({});
   /** Legacy: Chat messages per user (deprecated) */
   const [chatMessages, setChatMessages] = useState<{
     [other: string]: { from: string; msg: string }[];
@@ -657,18 +655,6 @@ export default function Page() {
   // ============================================================================
 
   /**
-   * Legacy chat UI helpers (deprecated)
-   */
-  const showChat = (other: string) =>
-    setActiveChats((chats: { [k: string]: boolean }) => ({ ...chats, [other]: true }));
-  const closeChat = (other: string) =>
-    setActiveChats((chats: { [k: string]: boolean }) => {
-      const c = { ...chats };
-      delete c[other];
-      return c;
-    });
-
-  /**
    * Check if two positions are adjacent (within 1 square, including diagonals)
    *
    * @param a - First position { x, y }
@@ -881,7 +867,7 @@ export default function Page() {
             ))}
 
             {/* Render meeting rooms */}
-            {office.meetingRooms.map((r, i) => (
+            {office.meetingRooms.map((r) => (
               <div
                 key={r.name}
                 style={{
