@@ -33,7 +33,9 @@ export default function Page() {
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [videoPeers, setVideoPeers] = useState<{ [id: string]: MediaStream }>({});
   const [videoConnections, setVideoConnections] = useState<{ [id: string]: any }>({});
+  const videoConnectionsRef = useRef<{ [id: string]: any }>({});
   const videoRefs = useRef<{ [id: string]: HTMLVideoElement | null }>({});
+  const localVideoRefForGroup = useRef<HTMLVideoElement | null>(null);
   const [callUser, setCallUser] = useState<string | null>(null);
   const [videoModal, setVideoModal] = useState(false);
   const [remoteStream, setRemoteStream] = useState<any>(null);
@@ -261,7 +263,11 @@ export default function Page() {
           const np = { ...peers }; delete np[call.peer]; return np;
         });
       });
-      setVideoConnections(conns => ({ ...conns, [call.peer]: call }));
+      setVideoConnections(conns => {
+        const updated = { ...conns, [call.peer]: call };
+        videoConnectionsRef.current = updated;
+        return updated;
+      });
     };
     peer.on("call", handleCall);
     return () => { 
@@ -273,11 +279,14 @@ export default function Page() {
   // Handle group mesh connections (make outgoing calls)
   useEffect(() => {
     if (!peer || !mediaStream || !peerId) return; // Add peerId check - peer must be open
+    const currentConnections = videoConnectionsRef.current;
+    
     if (groupMembers.length <= 1) {
       // Leaving group: close all peers/conns
-      Object.values(videoConnections).forEach((call: any) => call.close && call.close());
+      Object.values(currentConnections).forEach((call: any) => call.close && call.close());
       setVideoPeers({});
       setVideoConnections({});
+      videoConnectionsRef.current = {};
       return;
     }
 
@@ -288,7 +297,7 @@ export default function Page() {
     for (let i = 0; i < sorted.length; ++i) {
       const other = sorted[i];
       if (other === username) continue;
-      if (i > myIdx && !videoConnections[other]) {
+      if (i > myIdx && !currentConnections[other]) {
         // Only call if the peer sorts after me and not connected yet
         // Peer is open if peerId exists
         try {
@@ -301,6 +310,10 @@ export default function Page() {
               setVideoPeers(peers => {
                 const np = { ...peers }; delete np[other]; return np;
               });
+              // Remove from ref when closed
+              const conns = videoConnectionsRef.current;
+              delete conns[other];
+              setVideoConnections({ ...conns });
             });
             updatedConns[other] = call;
           }
@@ -310,17 +323,44 @@ export default function Page() {
       }
     }
     // Don't lose any inbound connections (may or may not call us)
-    setVideoConnections(conns => ({ ...conns, ...updatedConns }));
+    const newConnections = { ...currentConnections, ...updatedConns };
+    videoConnectionsRef.current = newConnections;
+    setVideoConnections(newConnections);
+    
     // Prune closed peers if group shrank
-    Object.keys(videoConnections).forEach(id => {
+    Object.keys(currentConnections).forEach(id => {
       if (!groupMembers.includes(id)) {
-        videoConnections[id].close && videoConnections[id].close();
+        currentConnections[id].close && currentConnections[id].close();
         setVideoPeers(peers => {
           const np = { ...peers }; delete np[id]; return np;
         });
+        delete newConnections[id];
       }
     });
+    if (Object.keys(newConnections).length !== Object.keys(currentConnections).length) {
+      videoConnectionsRef.current = newConnections;
+      setVideoConnections(newConnections);
+    }
   }, [groupMembers, peer, mediaStream, peerId, username]);
+
+  // Update local video element when mediaStream changes
+  useEffect(() => {
+    if (localVideoRefForGroup.current && mediaStream) {
+      if (localVideoRefForGroup.current.srcObject !== mediaStream) {
+        localVideoRefForGroup.current.srcObject = mediaStream;
+      }
+    }
+  }, [mediaStream]);
+
+  // Update remote video elements when streams change
+  useEffect(() => {
+    Object.entries(videoPeers).forEach(([peerId, stream]) => {
+      const videoEl = videoRefs.current[peerId];
+      if (videoEl && videoEl.srcObject !== stream) {
+        videoEl.srcObject = stream;
+      }
+    });
+  }, [videoPeers]);
 
   // UI rendering helpers
   const showChat = (other: string) => setActiveChats((chats: { [k: string]: boolean }) => ({ ...chats, [other]: true }));
@@ -421,14 +461,23 @@ export default function Page() {
                 {/* Video grid */}
                 <div style={{display:'flex',flexWrap:'wrap',gap:12,justifyContent:'flex-start',padding:'12px 12px 0',minHeight:120,maxHeight:198,overflowY:'auto'}}>
                   <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}>
-                    <video ref={el => { if (el && mediaStream) el.srcObject = mediaStream; }} autoPlay playsInline muted style={{width:120,borderRadius:8,background:'#000'}} />
+                    <video 
+                      ref={localVideoRefForGroup} 
+                      autoPlay 
+                      playsInline 
+                      muted 
+                      style={{width:120,borderRadius:8,background:'#000'}} 
+                    />
                     <span style={{fontSize:12,color:'#cbd5e1',fontWeight:600,margin:2}}>Me</span>
                   </div>
-                  {Object.entries(videoPeers).map(([peerId, stream]) => (
+                  {Object.entries(videoPeers).map(([peerId]) => (
                     <div key={peerId} style={{display:'flex',flexDirection:'column',alignItems:'center'}}>
-                      <video ref={el => {
-                        if (el && stream) el.srcObject = stream; videoRefs.current[peerId] = el;
-                      }} autoPlay playsInline style={{width:120,borderRadius:8,background:'#000'}} />
+                      <video 
+                        ref={el => { videoRefs.current[peerId] = el; }}
+                        autoPlay 
+                        playsInline 
+                        style={{width:120,borderRadius:8,background:'#000'}} 
+                      />
                       <span style={{fontSize:12,color:'#cbd5e1',fontWeight:600,margin:2}}>{peerId}</span>
                     </div>
                   ))}
